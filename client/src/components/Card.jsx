@@ -113,27 +113,38 @@ function Card() {
   };
 
   const fetchMovie = async () => {
-    const response = await fetch('https://movie-hunt-chi.vercel.app/api/movie',{
-      method:"GET",
-    });
-
-    const movieData = await response.json();
-    setMovie(movieData);
-    const titleNormalized = filterAlphaNumeric(movieData.title.toLowerCase());
-    const wordArray = convertToWords(movieData.title.toLowerCase());
-    setName(titleNormalized);
-    setWords(wordArray);
-    let reff = [];
-    for(let i = 0; i < wordArray.length; i++){
-      let a = [];
-      for(let j = 0; j < wordArray[i].length; j++){
-        a.push(false);
+    try {
+      const response = await fetch("https://movie-hunt-chi.vercel.app/api/movie");
+  
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-      reff.push(a);
+  
+      const movieData = await response.json(); // Use .json() directly
+      console.log(movieData);
+  
+      setMovie(movieData);
+      const titleNormalized = filterAlphaNumeric(movieData.title.toLowerCase());
+      const wordArray = convertToWords(movieData.title.toLowerCase());
+      setName(titleNormalized);
+      setWords(wordArray);
+      
+      let reff = [];
+      for (let i = 0; i < wordArray.length; i++) {
+        let a = [];
+        for (let j = 0; j < wordArray[i].length; j++) {
+          a.push(false);
+        }
+        reff.push(a);
+      }
+      setRef(reff);
+      setGuess(wordArray.map((word) => Array(word.length).fill("")));
+      
+    } catch (error) {
+      console.error('Error fetching movie data:', error);
     }
-    setRef(reff);
-    setGuess(wordArray.map((word) => Array(word.length).fill("")));
   };
+  
 
   const Reveal_hints = () => {
     setHint(hint + 1);

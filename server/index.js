@@ -12,7 +12,7 @@ const port = process.env.PORT || 3000;
 const app = express();
 
 app.use(cors({
-    origin: "https://movie-hunt-op34.vercel.app", // Replace with your frontend URL
+    origin: "https://movie-hunt-op34.vercel.app", // Replace with your frontend URL  "https://movie-hunt-op34.vercel.app" || 
   }));
 const runMain = async () => {
     let movie = await movie_today();
