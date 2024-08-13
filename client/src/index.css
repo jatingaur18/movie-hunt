@@ -1,0 +1,29 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* .perspective {
+    perspective: 1000px;
+}
+
+.backface-hidden {
+    backface-visibility: hidden;
+}
+
+.transform.rotate-y-180 {
+    transform: rotateY(180deg);
+}
+
+.card-front {
+    transform: rotateY(0deg);
+}
+
+.flipped .card-front {
+    transform: rotateY(-180deg);
+}
+
+.flipped .card-back {
+    transform: rotateY(0deg);
+} */
+/* Add this custom CSS to handle the card flip effect */
+
