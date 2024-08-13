@@ -6,14 +6,14 @@ dotenv.config({
     path: "./env"
 });
 
-const cors = require('cors');
-app.use(cors({
-    origin: "https://movie-hunt-op34.vercel.app", // Replace with your frontend URL
-  }));
+import cors from "cors"; 
 
 const port = process.env.PORT || 3000;
 const app = express();
 
+app.use(cors({
+    origin: "https://movie-hunt-op34.vercel.app", // Replace with your frontend URL
+  }));
 const runMain = async () => {
     let movie = await movie_today();
     return movie;

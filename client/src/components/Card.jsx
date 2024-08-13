@@ -113,7 +113,7 @@ function Card() {
   };
 
   const fetchMovie = async () => {
-    const response = await fetch('/api/movie',{
+    const response = await fetch('https://movie-hunt-chi.vercel.app/api/movie',{
       method:"GET",
     });
 
