@@ -1,3 +1,4 @@
+import logo from '..\\assets\\movie hunt blackc.jpg'; // Make sure to replace with the actual path to your logo
 import React, { useState, useEffect, useRef } from "react";
 
 function Card() {
@@ -7,7 +8,7 @@ function Card() {
   const [guess, setGuess] = useState([]);
   const [hint, setHint] = useState(0);
   const [guessed, setGuessed] = useState(false);
-  const [ref,setRef] = useState([]);
+  const [ref, setRef] = useState([]);
   const inputRefs = useRef([]);
 
   const checkGuess = () => {
@@ -16,47 +17,36 @@ function Card() {
       setGuessed(true);
     }
   };
-  const handleKeyDown=(e, wordIndex, charIndex)=>{
+
+  const handleKeyDown = (e, wordIndex, charIndex) => {
     if (e.key === 'Backspace'){
       const newGuess = [...guess];
-        if(ref[wordIndex][charIndex]){
-          return;
-        }
-        if(newGuess[wordIndex][charIndex]){
-          newGuess[wordIndex][charIndex] = "";
-          setGuess(newGuess);
-          return;
-        }
+      if(ref[wordIndex][charIndex]){
+        return;
+      }
+      if(newGuess[wordIndex][charIndex]){
+        newGuess[wordIndex][charIndex] = "";
+        setGuess(newGuess);
+        return;
+      }
+      if(charIndex>0){charIndex--;}
+      else if(wordIndex>0){wordIndex--; charIndex= inputRefs.current[wordIndex].length - 1;}
+
+      while(ref[wordIndex][charIndex]){
         if(charIndex>0){charIndex--;}
         else if(wordIndex>0){wordIndex--; charIndex= inputRefs.current[wordIndex].length - 1;}
-
-        while(ref[wordIndex][charIndex]){
-          if(charIndex>0){charIndex--;}
-          else if(wordIndex>0){wordIndex--; charIndex= inputRefs.current[wordIndex].length - 1;}
-          else{
-            break;
-          }
+        else{
+          break;
         }
+      }
 
-        if(!ref[wordIndex][charIndex]){
-          newGuess[wordIndex][charIndex]="";
-          setGuess(newGuess);
-          inputRefs.current[wordIndex][charIndex].focus();
-        }
-        // if (charIndex > 0) {
-        //   newGuess[wordIndex][charIndex-1] = "";
-        //   setGuess(newGuess);
-        //   inputRefs.current[wordIndex][charIndex - 1].focus();
-        // } else if (wordIndex > 0) {
-        //   const prevWordIndex = wordIndex - 1;
-        //   const prevCharIndex = inputRefs.current[prevWordIndex].length - 1;
-        //   newGuess[prevWordIndex][prevCharIndex] = "";
-        //   setGuess(newGuess);
-        //   inputRefs.current[prevWordIndex][prevCharIndex].focus();
-        // }
-
+      if(!ref[wordIndex][charIndex]){
+        newGuess[wordIndex][charIndex]="";
+        setGuess(newGuess);
+        inputRefs.current[wordIndex][charIndex].focus();
+      }
     }
-  }
+  };
 
   const handleInputChange = (e, wordIndex, charIndex) => {
     const value = e.target.value.toLowerCase();
@@ -69,7 +59,6 @@ function Card() {
         setGuess(newGuess);
     }
 
-      // Move to the next input field
       if (charIndex < newGuess[wordIndex].length - 1) {
         charIndex++;
       } else if (wordIndex < newGuess.length - 1) {
@@ -102,7 +91,7 @@ function Card() {
 
       if (!reff[i][j]) {
         newGuess[i][j] = words[i][j];
-        reff[i][j]=true;
+        reff[i][j] = true;
         setRef(reff);
         revealed = true;
       }
@@ -124,8 +113,7 @@ function Card() {
   };
 
   const fetchMovie = async () => {
-    
-    const response= await fetch('/api/movie',{
+    const response = await fetch('/api/movie',{
       method:"GET",
     });
 
@@ -135,10 +123,10 @@ function Card() {
     const wordArray = convertToWords(movieData.title.toLowerCase());
     setName(titleNormalized);
     setWords(wordArray);
-    let reff=[];
-    for(let i=0;i<wordArray.length;i++){
-      let a=[];
-      for(let j=0;j<wordArray[i].length;j++){
+    let reff = [];
+    for(let i = 0; i < wordArray.length; i++){
+      let a = [];
+      for(let j = 0; j < wordArray[i].length; j++){
         a.push(false);
       }
       reff.push(a);
@@ -166,8 +154,10 @@ function Card() {
   }, []);
 
   return (
-    <div className="max-w-lg mx-auto p-6 bg-gray-100 text-gray-900 rounded-lg shadow-md">
-    <div>GUESS THE SCREEN</div>
+    <div className="max-w-lg mx-auto my-10 p-6 rounded-lg shadow-md" style={{ backgroundColor: 'rgb(0, 9, 18)', color: 'white' }}>
+      <div className="text-center mb-4">
+        <img src={logo} alt="Logo" className="mx-auto" />
+      </div>
       {!guessed ? (
         <>
           <h2 className="text-xl font-semibold mb-4">{movie.overview}</h2>
@@ -187,9 +177,10 @@ function Card() {
                     }}
                     value={guess[wordIndex][charIndex]}
                     onChange={(e) => handleInputChange(e, wordIndex, charIndex)}
-                    onKeyDown={(e)=>handleKeyDown(e, wordIndex, charIndex)}
-                    className="w-10 h-10 border-b-2 border-gray-900 text-center bg-transparent text-lg font-mono focus:outline-none"
+                    onKeyDown={(e) => handleKeyDown(e, wordIndex, charIndex)}
+                    className="w-10 h-10 border-b-2 border-gray-700 text-center bg-transparent text-lg font-mono focus:outline-none"
                     disabled={guessed}
+                    style={{ color: 'white' }}
                   />
                 ))}
               </div>
@@ -198,13 +189,13 @@ function Card() {
           <div className="flex space-x-4">
             <button
               onClick={checkGuess}
-              className="bg-gray-900 text-white px-4 py-2 rounded hover:bg-gray-700 transition-all duration-300"
+              className="bg-gray-900 border-2 text-white px-4 py-2 rounded hover:bg-gray-700 transition-all duration-300"
             >
               Guess
             </button>
             <button
               onClick={Reveal_hints}
-              className="bg-gray-900 text-white px-4 py-2 rounded hover:bg-gray-700 transition-all duration-300"
+              className="bg-gray-900 border-2 text-white px-4 py-2 rounded hover:bg-gray-700 transition-all duration-300"
             >
               Reveal Hint
             </button>
@@ -222,10 +213,10 @@ function Card() {
         <div className="text-center">
           <div className="flip-card">
             <div className="flip-card-inner">
-              <div className="flip-card-front">
+              <div className="flip-card-front" style={{ backgroundColor: 'rgb(0, 9, 18)', color: 'white' }}>
                 {/* Front of the card */}
               </div>
-              <div className="flip-card-back">
+              <div className="flip-card-back" style={{ backgroundColor: 'rgb(0, 9, 18)', color: 'white' }}>
                 {/* Back of the card */}
                 <img
                   src={movie.poster_img}
@@ -252,7 +243,3 @@ function Card() {
 }
 
 export default Card;
-
-
-
-

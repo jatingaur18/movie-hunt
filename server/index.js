@@ -10,7 +10,7 @@ const port = process.env.PORT || 3000;
 const app = express();
 
 const runMain = async () => {
-    let movie = await movie_today(2016);
+    let movie = await movie_today();
     return movie;
 };
 
