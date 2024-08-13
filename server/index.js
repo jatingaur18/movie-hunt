@@ -16,9 +16,11 @@ const runMain = async () => {
 
 app.get('/api/movie', async (req, res) => {
     try {
+        console.log("good")
         const movie = await runMain();
         res.send(movie);
     } catch (error) {
+        console.log("bad")
         res.status(500).send({ error: 'Failed to fetch movie data' });
     }
 });
