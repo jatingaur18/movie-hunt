@@ -1,4 +1,4 @@
-import logo from '..\\assets\\movie hunt blackc.jpg'; // Make sure to replace with the actual path to your logo
+import logo from '../assets/movie hunt blackc.jpg'; // Make sure to replace with the actual path to your logo
 import React, { useState, useEffect, useRef } from "react";
 
 function Card() {
