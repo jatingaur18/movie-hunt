@@ -154,7 +154,7 @@ function Card() {
   };
 
   const shareScore = () => {
-    const shareText = `I guessed the movie '${movie.title}' using ${hint} hints! Can you do better? Check it out at [WEBSITE LINK]`;
+    const shareText = `I guessed the movie '${movie.title}' using ${hint} hints! Can you do better? Check it out at https://movie-hunt-op34.vercel.app/`;
     navigator.clipboard.writeText(shareText).then(() => {
       alert("Score copied to clipboard!");
     });
