@@ -168,6 +168,7 @@ function Card() {
     <div className="max-w-lg mx-auto my-10 p-6 rounded-lg shadow-md" style={{ backgroundColor: 'rgb(0, 9, 18)', color: 'white' }}>
       <div className="text-center mb-4">
         <img src={logo} alt="Logo" className="mx-auto" />
+        <h2>hi kezuals</h2>
       </div>
       {!guessed ? (
         <>
