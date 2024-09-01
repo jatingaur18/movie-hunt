@@ -10,7 +10,7 @@ const removeNames = (overview) => {
 };
 
 const movie_list = async (year,page) => {
-    const url = `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=${page}&primary_release_year=${year}&region=IN&sort_by=popularity.desc&vote_count.gte=50&with_origin_country=IN&with_original_language=hi`;
+    const url = `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=${page}&primary_release_year=${year}&region=IN&sort_by=popularity.desc&vote_count.gte=20&with_origin_country=IN&with_original_language=hi`;
     const options = {
         method: 'GET',
         headers: {
@@ -42,9 +42,10 @@ const movie_today = async () => {
         }
         const currentYear = new Date().getFullYear();
         const year = Math.floor(Math.random() * (currentYear - 1990)) + 1990;
-        const page = Math.floor(Math.random() * 2) + 1;
-        const arr_page1 = await movie_list(year,page);
-        const arr = arr_page1;
+        const arr_page1 = await movie_list(year,1);
+        const arr_page2 = await movie_list(year,2);
+        const arr_page3 = await movie_list(year,3);
+        const arr = arr_page1.concat(arr_page2, arr_page3);
         const l = arr.length;
         if (l === 0) {
             console.log('No movies found');
