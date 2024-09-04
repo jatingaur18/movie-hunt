@@ -41,7 +41,7 @@ const movie_today = async () => {
             overview:null
         }
         const currentYear = new Date().getFullYear();
-        const year = Math.floor(Math.random() * (currentYear - 2003)) + 2003;
+        const year = Math.floor(Math.random() * (currentYear - 1990)) + 1990;
         const arr_page1 = await movie_list(year,1);
         const arr_page2 = await movie_list(year,2);
         const arr_page3 = await movie_list(year,3);
