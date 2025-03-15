@@ -144,7 +144,7 @@ function Card() {
 
   const fetchMovie = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/movie");
+      const response = await fetch("https://movie-hunt-chi.vercel.app/api/movie");
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
