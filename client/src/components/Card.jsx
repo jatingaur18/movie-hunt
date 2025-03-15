@@ -1,5 +1,5 @@
-import logo from '../assets/mhbc.jpg'; // Make sure to replace with the actual path to your logo
 import React, { useState, useEffect, useRef } from "react";
+import confetti from 'canvas-confetti'; // Importing the confetti library for celebration animation
 
 function Card() {
   const [movie, setMovie] = useState({});
@@ -10,17 +10,25 @@ function Card() {
   const [guessed, setGuessed] = useState(false);
   const [ref, setRef] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
+  const [letter, setLetter] = useState(0);
   const inputRefs = useRef([]);
 
   const checkGuess = () => {
     const currentGuess = guess.flat().join("");
     if (currentGuess === name) {
       setGuessed(true);
+      // Trigger confetti animation when guessed correctly
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#2a9d8f', '#e76f51', '#f4a261'],
+      });
     } else {
       setShowPopup(true);
       setTimeout(() => {
         setShowPopup(false);
-      }, 2000); // Popup will disappear after 2 seconds
+      }, 2000);
     }
   };
 
@@ -112,6 +120,13 @@ function Card() {
 
     if (newGuess.flat().join("") === name) {
       setGuessed(true);
+      // Trigger confetti animation when guessed correctly via hint
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#2a9d8f', '#e76f51', '#f4a261'],
+      });
     }
   };
 
@@ -121,6 +136,10 @@ function Card() {
 
   const convertToWords = (title) => {
     return title.toLowerCase().match(/[a-z0-9]+/g) || [];
+  };
+
+  const getLetterBreakdown = () => {
+    return words.map(word => word.length).join("-");
   };
 
   const fetchMovie = async () => {
@@ -137,25 +156,25 @@ function Card() {
       }
 
       const movieData = await response.json();
-      console.log(movieData);
 
       setMovie(movieData);
       const titleNormalized = filterAlphaNumeric(movieData.title.toLowerCase());
       const wordArray = convertToWords(movieData.title.toLowerCase());
       setName(titleNormalized);
       setWords(wordArray);
-
+      let lett = 0;
       let reff = [];
       for (let i = 0; i < wordArray.length; i++) {
         let a = [];
         for (let j = 0; j < wordArray[i].length; j++) {
           a.push(false);
+          lett++;
         }
         reff.push(a);
       }
+      setLetter(lett);
       setRef(reff);
       setGuess(wordArray.map((word) => Array(word.length).fill("")));
-
     } catch (error) {
       console.error('Error fetching movie data:', error);
       alert('Failed to fetch movie data. Please try again later.');
@@ -185,101 +204,116 @@ function Card() {
   }, []);
 
   return (
-    <div className="max-w-lg mx-auto my-10 p-6 rounded-lg shadow-md bg-gray-800 text-white">
-      {showPopup && (
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-4 py-2 rounded shadow-lg transition-all duration-300">
-          Incorrect guess! Try again.
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#5db6a2] p-4">
+      <div className="w-full max-w-lg bg-white rounded-lg shadow-md p-8">
+        {showPopup && (
+          <div className="min-h-screen w-full flex items-center justify-center bg-[#5db6a2] p-4 fixed top-0 left-0 bg-opacity-50 z-10">
+          <div className="fixed top-16 left- transform -translate-x-1/2 bg-[#f4a261] text-[#1a3c34] px-4 py-2 rounded-md shadow-md animate-fade-in-out">
+            Incorrect guess
+          </div>
+          </div>
+        )}
+        
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-semibold text-[#1a3c34]">Movie Hunt</h1>
         </div>
-      )}
-      <div className="text-center mb-4 rounded">
-        <img src={logo} alt="Logo" className="mx-auto" />
-      </div>
-      {!guessed ? (
-        <>
-          <h2 className="text-xl font-semibold mb-4 text-center">{movie.overview}</h2>
-          <div className="flex flex-wrap justify-center gap-2 mb-4">
-            {words.map((word, wordIndex) => (
-              <div key={wordIndex} className="flex space-x-2">
-                {word.split("").map((char, charIndex) => (
-                  <input
-                    key={charIndex}
-                    type="text"
-                    maxLength={1}
-                    ref={(el) => {
-                      if (!inputRefs.current[wordIndex]) {
-                        inputRefs.current[wordIndex] = [];
-                      }
-                      inputRefs.current[wordIndex][charIndex] = el;
-                    }}
-                    value={guess[wordIndex][charIndex]}
-                    onChange={(e) => handleInputChange(e, wordIndex, charIndex)}
-                    onKeyDown={(e) => handleKeyDown(e, wordIndex, charIndex)}
-                    className="w-10 h-10 border-b-2 border-gray-500 text-center bg-transparent text-lg font-mono focus:outline-none"
-                    disabled={guessed}
-                    style={{ color: 'white' }}
-                  />
-                ))}
+
+        {!guessed ? (
+          <>
+            <div className="mb-6">
+              <p className="text-sm text-[#1a3c34] leading-relaxed">{movie.overview}</p>
+              <div className="flex justify-center mt-3">
+                <p className="text-sm text-[#4a7c6e] font-medium">
+                  Letters: {getLetterBreakdown()}
+                </p>
               </div>
-            ))}
+            </div>
+
+            <div className="flex flex-wrap justify-center gap-3 mb-6">
+              {words.map((word, wordIndex) => (
+                <div key={wordIndex} className="flex gap-1">
+                  {word.split("").map((char, charIndex) => (
+                    <input
+                      key={charIndex}
+                      type="text"
+                      maxLength={1}
+                      ref={(el) => {
+                        if (!inputRefs.current[wordIndex]) {
+                          inputRefs.current[wordIndex] = [];
+                        }
+                        inputRefs.current[wordIndex][charIndex] = el;
+                      }}
+                      value={guess[wordIndex][charIndex]}
+                      onChange={(e) => handleInputChange(e, wordIndex, charIndex)}
+                      onKeyDown={(e) => handleKeyDown(e, wordIndex, charIndex)}
+                      className="w-8 h-8 rounded bg-[#e0e7e9] border border-[#b0c4c1] text-[#1a3c34] text-center text-base font-mono focus:border-[#2a9d8f] focus:ring-1 focus:ring-[#2a9d8f]/50 transition-all duration-150 disabled:opacity-50"
+                      disabled={guessed}
+                    />
+                  ))}
+                </div>
+              ))}
+            </div>
+
+            <div className="flex justify-center gap-3 mb-4">
+              <button
+                onClick={checkGuess}
+                className="px-4 py-1 rounded-full bg-[#2a9d8f] hover:bg-[#248b7e] text-white text-sm font-medium transition-all duration-200"
+              >
+                Guess
+              </button>
+              <button
+                onClick={Reveal_hints}
+                className="px-4 py-1 rounded-full bg-[#2a9d8f] hover:bg-[#248b7e] text-white text-sm font-medium transition-all duration-200"
+              >
+                Hint ({hint})
+              </button>
+              <button
+                onClick={refreshPage}
+                className="px-4 py-1 rounded-full bg-[#e76f51] hover:bg-[#d65f41] text-white text-sm font-medium transition-all duration-200"
+              >
+                Next
+              </button>
+            </div>
+
+            {hint > 0 && (
+              <div className="text-center mb-2 bg-[#e0e7e9] p-2 rounded">
+                <p className="text-sm text-[#4a7c6e] font-medium">Year: {movie.year}</p>
+              </div>
+            )}
+            {hint > 1 && (
+              <div className="text-center bg-[#e0e7e9] p-2 rounded">
+                <p className="text-sm text-[#4a7c6e] font-medium">Genre: {movie.genres?.join(", ")}</p>
+              </div>
+            )}
+          </>
+        ) : (
+          <div>
+            <div className="bg-[#e0e7e9] p-4 rounded text-center">
+              <h2 className="text-lg font-medium mb-2 text-[#1a3c34]">{movie.title}</h2>
+              <img 
+                src={movie.poster_img} 
+                alt={movie.title} 
+                className="mx-auto mb-4 w-48 h-72 object-cover rounded shadow-sm border border-[#b0c4c1]"
+              />
+              <p className="text-sm font-medium text-[#4a7c6e]">Score: {letter - hint + 2}</p>
+            </div>
+            <div className="flex justify-center gap-3 mt-4">
+              <button
+                onClick={shareScore}
+                className="px-4 py-1 rounded-full bg-[#2a9d8f] hover:bg-[#248b7e] text-white text-sm font-medium transition-all duration-200"
+              >
+                Share Score
+              </button>
+              <button
+                onClick={refreshPage}
+                className="px-4 py-1 rounded-full bg-[#e76f51] hover:bg-[#d65f41] text-white text-sm font-medium transition-all duration-200"
+              >
+                Play Again
+              </button>
+            </div>
           </div>
-          <div className="flex justify-center space-x-4">
-            <button
-              onClick={checkGuess}
-              className="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-600 transition-all duration-300"
-            >
-              Guess
-            </button>
-            <button
-              onClick={Reveal_hints}
-              className="bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-600 transition-all duration-300"
-            >
-              Reveal Hint
-            </button>
-            <button
-              onClick={refreshPage}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500 transition-all duration-300"
-            >
-              Next
-            </button>
-          </div>
-          {hint > 0 && (
-            <h2 className="mt-4 text-lg font-bold text-center">
-              Year: {movie.year}
-            </h2>
-          )}
-          {hint > 1 && (
-            <h2 className="mt-2 text-lg font-bold text-center">
-              Genre: {movie.genres.join(", ")}
-            </h2>
-          )}
-        </>
-      ) : (
-        <div className="mt-8">
-          <div className="bg-gray-900 text-white p-4 rounded-lg shadow-md text-center">
-            <h2 className="text-2xl font-semibold mb-4">{movie.title}</h2>
-            <img 
-              src={movie.poster_img} 
-              alt={movie.title} 
-              className="mx-auto mb-4 w-64 h-96 object-cover rounded-lg shadow-md"
-            />
-            <p className="text-lg font-medium">Score: {hint}</p>
-          </div>
-          <div className="flex justify-center space-x-4 mt-4">
-            <button
-              onClick={shareScore}
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-500 transition-all duration-300"
-            >
-              Share Score
-            </button>
-            <button
-              onClick={refreshPage}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-500 transition-all duration-300"
-            >
-              Play Again
-            </button>
-          </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

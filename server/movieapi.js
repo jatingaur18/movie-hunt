@@ -1,14 +1,19 @@
 import fetch from 'node-fetch';
 import poster from './poster.js';
 import movie from './movie.js';
+const removeNames = (overview) => {
+    const namePatterns = /(\b[A-Z][a-z]*\b)/g;
+    return overview.replace(namePatterns, '___');
+};
 
 const movie_list = async (year, page) => {
+    var tmdb_api=process.env.TMDB_API;
     const url = `https://api.themoviedb.org/3/discover/movie?include_adult=false&include_video=false&language=en-US&page=${page}&primary_release_year=${year}&region=IN&sort_by=popularity.desc&vote_count.gte=0&with_origin_country=IN&with_original_language=hi`;
     const options = {
         method: 'GET',
         headers: {
             accept: 'application/json',
-            Authorization: `Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI3MWZlZWI2YzNhMjJjMjgwYzEzNTQwYTVkMjJkMTdkZiIsIm5iZiI6MTcyMzA0MzQzMi40MDk3NSwic3ViIjoiNjZhYjdjNGZiYTM0OGMxYWY5MGIxYzdjIiwic2NvcGVzIjpbImFwaV9yZWFkIl0sInZlcnNpb24iOjF9.8MrqEdWpzqTczk8pwWAGCPiJF7W9AqzESZsqz7wnxYw`
+            Authorization: `Bearer ${tmdb_api}`
         }
     };
 
@@ -107,7 +112,7 @@ const movie_today = async () => {
                 .filter(Boolean);
         }
         
-        fin_movie.overview = mov.overview || null;
+        fin_movie.overview = (mov.overview) || null;
         
         console.log('Successfully created fin_movie object');
         return fin_movie;

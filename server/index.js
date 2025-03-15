@@ -1,10 +1,7 @@
 import express from "express";
 import movie_today from "./movieapi.js";
 import dotenv from "dotenv";
-
-dotenv.config({
-    path: "./env"
-});
+dotenv.config();
 
 import cors from "cors"; 
 

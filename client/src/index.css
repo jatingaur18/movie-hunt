@@ -2,28 +2,13 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-/* .perspective {
-    perspective: 1000px;
-}
-
-.backface-hidden {
-    backface-visibility: hidden;
-}
-
-.transform.rotate-y-180 {
-    transform: rotateY(180deg);
-}
-
-.card-front {
-    transform: rotateY(0deg);
-}
-
-.flipped .card-front {
-    transform: rotateY(-180deg);
-}
-
-.flipped .card-back {
-    transform: rotateY(0deg);
-} */
-/* Add this custom CSS to handle the card flip effect */
-
+@keyframes fade-in-out {
+    0% { opacity: 0; transform: translateY(-10px); }
+    20% { opacity: 1; transform: translateY(0); }
+    80% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-10px); }
+  }
+  
+  .animate-fade-in-out {
+    animation: fade-in-out 2s ease-in-out;
+  }
