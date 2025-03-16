@@ -12,3 +12,25 @@
   .animate-fade-in-out {
     animation: fade-in-out 2s ease-in-out;
   }
+  
+  /* Custom keyboard theme */
+  .custom-keyboard-theme .hg-button {
+    background-color: #2a9d8f !important; /* Teal background */
+    color: #ffffff !important; /* White text */
+    border-radius: 4px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    transition: background-color 0.2s ease !important;
+  }
+  
+  .custom-keyboard-theme .hg-button:hover {
+    background-color: #248b7e !important; /* Teal hover state */
+  }
+  
+  .custom-keyboard-theme .hg-button.hg-functionBtn {
+    background-color: #e76f51 !important; /* Coral for Backspace */
+  }
+  
+  .custom-keyboard-theme .hg-button.hg-functionBtn:hover {
+    background-color: #d65f41 !important; /* Coral hover state */
+  }
