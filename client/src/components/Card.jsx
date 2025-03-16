@@ -4,25 +4,23 @@ import Keyboard from 'react-simple-keyboard';
 import 'react-simple-keyboard/build/css/index.css';
 
 function Card() {
-  // State variables
   const [movie, setMovie] = useState({});
-  const [name, setName] = useState(""); // Normalized movie title
-  const [words, setWords] = useState([]); // Title split into words
-  const [guess, setGuess] = useState([]); // 2D array of guessed letters
-  const [hint, setHint] = useState(0); // Number of hints used
-  const [guessed, setGuessed] = useState(false); // Whether the movie is guessed
-  const [ref, setRef] = useState([]); // 2D array of revealed letters
-  const [showPopup, setShowPopup] = useState(false); // Popup for incorrect guesses
-  const [letter, setLetter] = useState(0); // Total number of letters
-  const [cursor, setCursor] = useState({ wordIndex: 0, charIndex: 0 }); // Cursor position
-  const inputRefs = useRef([]); // References to input elements
+  const [name, setName] = useState("");
+  const [words, setWords] = useState([]);
+  const [guess, setGuess] = useState([]);
+  const [hint, setHint] = useState(0);
+  const [guessed, setGuessed] = useState(false);
+  const [ref, setRef] = useState([]);
+  const [showPopup, setShowPopup] = useState(false);
+  const [letter, setLetter] = useState(0);
+  const [cursor, setCursor] = useState({ wordIndex: 0, charIndex: 0 });
   const [isMobileDevice, setIsMobileDevice] = useState(false);
-  // Fetch movie data on mount
+  const inputRefs = useRef([]);
+
   useEffect(() => {
     const isMobile = () => {
       return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     };
-    // isMobile();
     setIsMobileDevice(isMobile());
     const fetchMovie = async () => {
       const response = await fetch("https://movie-hunt-chi.vercel.app/api/movie");
@@ -43,7 +41,6 @@ function Card() {
     fetchMovie();
   }, []);
 
-  // Set initial focus when guess is initialized
   useEffect(() => {
     if (inputRefs.current[0] && inputRefs.current[0][0]) {
       inputRefs.current[0][0].focus();
@@ -51,11 +48,9 @@ function Card() {
     }
   }, [guess]);
 
-  // Move cursor to the next editable position
   const moveCursorForward = (currentWordIndex, currentCharIndex) => {
     let wordIndex = currentWordIndex;
     let charIndex = currentCharIndex + 1;
-
     if (charIndex >= guess[wordIndex].length) {
       if (wordIndex < guess.length - 1) {
         wordIndex++;
@@ -64,7 +59,6 @@ function Card() {
         return;
       }
     }
-
     while (
       wordIndex < guess.length &&
       charIndex < guess[wordIndex].length &&
@@ -80,7 +74,6 @@ function Card() {
         }
       }
     }
-
     if (wordIndex < guess.length && charIndex < guess[wordIndex].length) {
       setCursor({ wordIndex, charIndex });
       setTimeout(() => {
@@ -91,30 +84,58 @@ function Card() {
     }
   };
 
-  // Handle backspace functionality
   const handleBackspace = (wordIndex, charIndex) => {
-    const newGuess = [...guess]; // Create a copy of the current guess state
-  
+    const newGuess = [...guess];
+
     // Case 1: Current position has an editable letter
     if (newGuess[wordIndex][charIndex] && !ref[wordIndex][charIndex]) {
       newGuess[wordIndex][charIndex] = ""; // Clear the current letter
-      setGuess(newGuess); // Update the guess state
-      setCursor({ wordIndex, charIndex }); // Keep cursor at current position
-      // Delay focus to ensure state updates first
-      inputRefs.current[wordIndex][charIndex].focus();
+      setGuess(newGuess);
+
+      // Move cursor to the previous editable position
+      let prevWordIndex = wordIndex;
+      let prevCharIndex = charIndex - 1;
+
+      while (prevWordIndex >= 0) {
+        while (prevCharIndex >= 0) {
+          if (!ref[prevWordIndex][prevCharIndex]) {
+            setCursor({ wordIndex: prevWordIndex, charIndex: prevCharIndex });
+            setTimeout(() => {
+              if (inputRefs.current[prevWordIndex] && inputRefs.current[prevWordIndex][prevCharIndex]) {
+                inputRefs.current[prevWordIndex][prevCharIndex].focus();
+              }
+            }, 0);
+            return;
+          }
+          prevCharIndex--;
+        }
+        if (prevWordIndex > 0) {
+          prevWordIndex--;
+          prevCharIndex = guess[prevWordIndex].length - 1;
+        } else {
+          break;
+        }
+      }
+      // If no previous editable position, stay at the first position
+      setCursor({ wordIndex: 0, charIndex: 0 });
+      setTimeout(() => {
+        if (inputRefs.current[0] && inputRefs.current[0][0]) {
+          inputRefs.current[0][0].focus();
+        }
+      }, 0);
       return;
     }
-  
+
     // Case 2: Current position is empty, move to previous editable position
     let prevWordIndex = wordIndex;
     let prevCharIndex = charIndex - 1;
-  
+
     while (prevWordIndex >= 0) {
       while (prevCharIndex >= 0) {
-        if (!ref[prevWordIndex][prevCharIndex]) { // Check if position is editable
-          newGuess[prevWordIndex][prevCharIndex] = ""; // Clear the previous letter
-          setGuess(newGuess); // Update the guess state
-          setCursor({ wordIndex: prevWordIndex, charIndex: prevCharIndex }); // Move cursor to previous position
+        if (!ref[prevWordIndex][prevCharIndex]) {
+          newGuess[prevWordIndex][prevCharIndex] = "";
+          setGuess(newGuess);
+          setCursor({ wordIndex: prevWordIndex, charIndex: prevCharIndex });
           setTimeout(() => {
             if (inputRefs.current[prevWordIndex] && inputRefs.current[prevWordIndex][prevCharIndex]) {
               inputRefs.current[prevWordIndex][prevCharIndex].focus();
@@ -122,33 +143,29 @@ function Card() {
           }, 0);
           return;
         }
-        prevCharIndex--; // Move to the previous character
+        prevCharIndex--;
       }
-      // Move to the previous word if we've reached the start of the current word
       if (prevWordIndex > 0) {
         prevWordIndex--;
-        prevCharIndex = guess[prevWordIndex].length - 1; // Start at the last character of the previous word
+        prevCharIndex = guess[prevWordIndex].length - 1;
       } else {
-        break; // No previous positions available
+        break;
       }
     }
   };
 
-  // Handle physical keyboard input
   const handleInputChange = (e) => {
     const { wordIndex, charIndex } = cursor;
     const value = e.target.value.toLowerCase();
-
     if (!ref[wordIndex][charIndex] && value.match(/^[a-z0-9]$/)) {
       const newGuess = [...guess];
       newGuess[wordIndex][charIndex] = value;
       setGuess(newGuess);
       moveCursorForward(wordIndex, charIndex);
     }
-    e.target.value = ""; // Clear input after processing
+    e.target.value = "";
   };
 
-  // Handle virtual keyboard input
   const handleKeyboardClick = (key) => {
     if (key === '{bksp}') {
       handleBackspace(cursor.wordIndex, cursor.charIndex);
@@ -163,7 +180,6 @@ function Card() {
     }
   };
 
-  // Update cursor when an input is focused
   const handleInputFocus = (wordIndex, charIndex) => {
     if (!ref[wordIndex][charIndex]) {
       setCursor({ wordIndex, charIndex });
@@ -173,7 +189,6 @@ function Card() {
     }
   };
 
-  // Check if the guess is correct
   const checkGuess = () => {
     const currentGuess = guess.flat().join("");
     if (currentGuess === name) {
@@ -190,7 +205,6 @@ function Card() {
     }
   };
 
-  // Reveal hints
   const Reveal_hints = () => {
     setHint(hint + 1);
     if (hint >= 2) {
@@ -220,7 +234,6 @@ function Card() {
     }
   };
 
-  // Share score to clipboard
   const shareScore = () => {
     const shareText = `I guessed the movie '${movie.title}' using ${hint} hints! Can you do better? Check it out at https://movie-hunt-op34.vercel.app/`;
     navigator.clipboard.writeText(shareText).then(() => {
@@ -228,12 +241,10 @@ function Card() {
     });
   };
 
-  // Refresh the page for a new game
   const refreshPage = () => {
     window.location.reload();
   };
 
-  // Helper function to determine if this cell is where the cursor is
   const isActiveCursor = (wordIndex, charIndex) => {
     return cursor.wordIndex === wordIndex && cursor.charIndex === charIndex;
   };
@@ -241,7 +252,6 @@ function Card() {
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-[#5db6a2] p-4">
       <div className="w-full max-w-lg bg-white rounded-lg shadow-md p-8">
-        {/* Popup for incorrect guesses */}
         {showPopup && (
           <div className="min-h-screen w-full flex items-center justify-center bg-[#5db6a2] p-4 fixed top-0 left-0 bg-opacity-50 z-10">
             <div className="bg-[#f4a261] text-[#1a3c34] px-4 py-2 rounded-md shadow-md animate-fade-in-out">
@@ -249,13 +259,11 @@ function Card() {
             </div>
           </div>
         )}
-        {/* Header */}
         <div className="text-center mb-6">
           <h1 className="text-2xl font-semibold text-[#1a3c34]">Movie Hunt</h1>
         </div>
         {!guessed ? (
           <>
-            {/* Movie overview and letter count */}
             <div className="mb-6">
               <p className="text-sm text-[#1a3c34] leading-relaxed">{movie.overview}</p>
               <div className="flex justify-center mt-3">
@@ -264,42 +272,39 @@ function Card() {
                 </p>
               </div>
             </div>
-            {/* Input fields */}
             <div className="flex flex-wrap justify-center gap-3 mb-6">
               {words.map((word, wordIndex) => (
                 <div key={wordIndex} className="flex gap-1">
                   {word.split("").map((char, charIndex) => (
                     <input
-                    key={charIndex}
-                    type="text"
-                    maxLength={1}
-                    readOnly={isMobileDevice}
-                    // readOnly={true}  //s This already helps prevent mobile keyboard
-                    ref={(el) => {
-                      if (!inputRefs.current[wordIndex]) inputRefs.current[wordIndex] = [];
-                      inputRefs.current[wordIndex][charIndex] = el;
-                    }}
-                    value={guess[wordIndex]?.[charIndex] || ""}
-                    onChange={handleInputChange}
-                    onKeyDown={(e) => {
-                      if (e.key === "Backspace") {
-                        e.preventDefault(); // Stop default backspace behavior
-                        handleBackspace(wordIndex, charIndex);
-                      }
-                    }}
-                    onFocus={() => handleInputFocus(wordIndex, charIndex)}
-                    className={`w-8 h-8 rounded border text-[#1a3c34] text-center text-base font-mono transition-all duration-150 disabled:opacity-50 ${
-                      isActiveCursor(wordIndex, charIndex) 
-                        ? 'bg-[#b7e4d8] border-[#2a9d8f] ring-2 ring-[#2a9d8f]' 
-                        : 'bg-[#e0e7e9] border-[#b0c4c1] focus:border-[#2a9d8f] focus:ring-1 focus:ring-[#2a9d8f]/50'
-                    }`}
-                    disabled={guessed || ref[wordIndex][charIndex]}
-                  />
+                      key={charIndex}
+                      type="text"
+                      maxLength={1}
+                      readOnly={isMobileDevice}
+                      ref={(el) => {
+                        if (!inputRefs.current[wordIndex]) inputRefs.current[wordIndex] = [];
+                        inputRefs.current[wordIndex][charIndex] = el;
+                      }}
+                      value={guess[wordIndex]?.[charIndex] || ""}
+                      onChange={handleInputChange}
+                      onKeyDown={(e) => {
+                        if (e.key === "Backspace") {
+                          e.preventDefault();
+                          handleBackspace(wordIndex, charIndex);
+                        }
+                      }}
+                      onFocus={() => handleInputFocus(wordIndex, charIndex)}
+                      className={`w-8 h-8 rounded border text-[#1a3c34] text-center text-base font-mono transition-all duration-150 disabled:opacity-50 ${
+                        isActiveCursor(wordIndex, charIndex) 
+                          ? 'bg-[#b7e4d8] border-[#2a9d8f] ring-2 ring-[#2a9d8f]' 
+                          : 'bg-[#e0e7e9] border-[#b0c4c1] focus:border-[#2a9d8f] focus:ring-1 focus:ring-[#2a9d8f]/50'
+                      }`}
+                      disabled={guessed || ref[wordIndex][charIndex]}
+                    />
                   ))}
                 </div>
               ))}
             </div>
-            {/* Action buttons */}
             <div className="flex justify-center gap-3 mb-4">
               <button
                 onClick={checkGuess}
@@ -320,7 +325,6 @@ function Card() {
                 Next
               </button>
             </div>
-            {/* Hints display */}
             {hint > 0 && (
               <div className="text-center mb-2 bg-[#e0e7e9] p-2 rounded">
                 <p className="text-sm text-[#4a7c6e] font-medium">Year: {movie.year}</p>
@@ -331,7 +335,6 @@ function Card() {
                 <p className="text-sm text-[#4a7c6e] font-medium">Genre: {movie.genres?.join(", ")}</p>
               </div>
             )}
-            {/* Virtual keyboard */}
             <div className="mt-6">
               <Keyboard
                 onKeyPress={handleKeyboardClick}
@@ -341,7 +344,6 @@ function Card() {
             </div>
           </>
         ) : (
-          /* Display when guessed correctly */
           <div>
             <div className="bg-[#e0e7e9] p-4 rounded text-center">
               <h2 className="text-lg font-medium mb-2 text-[#1a3c34]">{movie.title}</h2>
