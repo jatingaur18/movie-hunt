@@ -39,7 +39,7 @@ const movie_today = async () => {
 
     try {
         const currentYear = new Date().getFullYear();
-        const year = Math.floor(Math.random() * (currentYear - 1990)) + 1990;
+        const year = Math.floor(Math.random() * (currentYear - 2008)) + 2008;
         
         // Initialize array to store results
         let arr = [];
